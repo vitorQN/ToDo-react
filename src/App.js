@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
+import TaskItem from "./components/TaskItem";
+import TaskModal from "./components/TaskModal";
+
+import {
+  getTasks,
+  createTask,
+  deleteTask,
+  updateTask
+} from "./services/api";
+
 function App() {
 
   const [tasks, setTasks] = useState([]);
@@ -14,174 +24,105 @@ function App() {
     fetchTasks();
   }, []);
 
-  const fetchTasks = () => {
+  const fetchTasks = async () => {
 
-    fetch("http://localhost:8080/tasks")
-      .then(response => response.json())
-      .then(data => setTasks(data));
+    const data = await getTasks();
+
+    setTasks(data);
   };
 
-  const createTask = () => {
+  const handleCreateTask = async () => {
 
-    fetch("http://localhost:8080/tasks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        title: title
-      })
-    })
-      .then(response => response.json())
-      .then(() => {
-        fetchTasks();
-        setTitle("");
-      });
+    await createTask(title);
+
+    fetchTasks();
+
+    setTitle("");
   };
 
-  const deleteTask = (id) => {
+  const handleDeleteTask = async (id) => {
 
-  fetch(`http://localhost:8080/tasks/${id}`, {
-    method: "DELETE"
-    })
-      .then(() => fetchTasks());
+    await deleteTask(id);
+
+    fetchTasks();
   };
 
 
-  const putTask = () => {
+  const putTask = async () => {
 
-    fetch(`http://localhost:8080/tasks/${editingTaskId}`, {
+    await updateTask(
+      editingTaskId,
+      updatedTitle
+    );
 
-      method: "PUT",
+    fetchTasks();
 
-      headers: {
-       "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify({
-        title: updatedTitle
-      })
-
-    })
-      .then(response => response.json())
-      .then(() => {
-
-        fetchTasks();
-
-        setIsModalOpen(false);
-
-        setUpdatedTitle("");
-      });
-
+    setIsModalOpen(false);
   };
 
   const openEditModal = (task) => {
 
-        setEditingTaskId(task.id);
+    setEditingTaskId(task.id);
 
-        setUpdatedTitle(task.title);
+    setUpdatedTitle(task.title);
 
-        setIsModalOpen(true);
+    setIsModalOpen(true);
   };
 
 
 
 
   return (
-  <div className="app">
+    <div className="app">
 
-    <h1 className="title">
-      Todo App
-    </h1>
+      <h1 className="title">
+        To-Do App
+      </h1>
 
-    <div className="input-container">
+      <div className="input-container">
 
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Task title"
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Task title"
+        />
+
+        <button
+          className="add-btn"
+          onClick={handleCreateTask}
+        >
+          Add
+        </button>
+
+      </div>
+
+      {tasks.map(task => (
+
+        <div className="task" key={task.id}>
+
+          <TaskItem
+            key={task.id}
+            task={task}
+            deleteTask={handleDeleteTask}
+            openEditModal={openEditModal}
+          />
+
+        </div>
+      ))}
+
+      <TaskModal
+        isModalOpen={isModalOpen}
+        updatedTitle={updatedTitle}
+        setUpdatedTitle={setUpdatedTitle}
+        putTask={putTask}
+        setIsModalOpen={setIsModalOpen}
       />
-
-      <button
-        className="add-btn"
-        onClick={createTask}
-      >
-        Add
-      </button>
 
     </div>
 
-    {tasks.map(task => (
-
-      <div className="task" key={task.id}>
-
-        <span className="task-title">
-          {task.title}
-        </span>
-
-        <div className="buttons">
-
-          <button
-            className="edit-btn"
-            onClick={() => openEditModal(task)}
-          >
-            Edit
-          </button>
-
-          <button
-            className="delete-btn"
-            onClick={() => deleteTask(task.id)}
-          >
-            Delete
-          </button>
-
-        </div>
-
-      </div>
-    ))}
-
-    {isModalOpen && (
-
-      <div className="modal-overlay">
-
-        <div className="modal">
-
-          <h2>Edit Task</h2>
-
-          <input
-            value={updatedTitle}
-            onChange={(e) => setUpdatedTitle(e.target.value)}
-            placeholder="New title"
-          />
-
-          <div className="modal-buttons">
-
-            <button
-              className="save-btn"
-              onClick={putTask}
-            >
-              Save
-            </button>
-
-            <button
-              className="cancel-btn"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancel
-            </button>
-
-          </div>
-
-        </div>
-
-      </div>
-    )}
-
-  </div>
-
   );
 
-  
+
 }
 
 export default App;
