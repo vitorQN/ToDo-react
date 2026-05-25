@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8080/tasks";
+const BASE_URL = "https://to-do-java-production.up.railway.app/tasks";
 
 export const getTasks = async () => {
 
