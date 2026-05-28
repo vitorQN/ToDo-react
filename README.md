@@ -1,70 +1,185 @@
-# Getting Started with Create React App
+# FrontTodo
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React frontend for a simple To-Do application. The app lets users list, create, edit, and delete tasks through a REST API.
+
+## Overview
+
+This project is a Create React App frontend built with React 18. It renders a compact task manager UI with:
+
+- Task list loaded from the backend API
+- New task creation
+- Existing task editing through a modal
+- Task deletion
+- Dark glass-style interface defined in `src/App.css`
+
+## Tech Stack
+
+- React 18
+- Create React App / `react-scripts`
+- Fetch API for backend requests
+- Standard CSS imported into React components
+- React Testing Library setup from Create React App
+
+## Requirements
+
+Before running the project, install:
+
+- Node.js
+- npm
+
+The project already includes `package-lock.json`, so prefer `npm install` for local setup.
+
+## Getting Started
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm start
+```
+
+Open the app in your browser:
+
+```text
+http://localhost:3000
+```
+
+The page reloads automatically when source files change.
 
 ## Available Scripts
 
-In the project directory, you can run:
-
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Runs the app in development mode at `http://localhost:3000`.
 
 ### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Starts the test runner in interactive watch mode.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Creates an optimized production build in the `build` folder.
 
 ### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Exposes the Create React App build configuration. This is irreversible and should only be used if the project needs full control over Webpack, Babel, ESLint, and related tooling.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Project Structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```text
+fronttodo/
+|-- public/
+|-- src/
+|   |-- components/
+|   |   |-- TaskItem.jsx
+|   |   `-- TaskModal.jsx
+|   |-- services/
+|   |   `-- api.js
+|   |-- App.css
+|   |-- App.js
+|   |-- App.test.js
+|   |-- index.css
+|   |-- index.js
+|   |-- reportWebVitals.js
+|   `-- setupTests.js
+|-- package.json
+|-- package-lock.json
+`-- README.md
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Main Files
 
-## Learn More
+- `src/App.js` contains the main application state and task actions.
+- `src/components/TaskItem.jsx` renders a single task row with edit and delete actions.
+- `src/components/TaskModal.jsx` renders the edit task modal.
+- `src/services/api.js` centralizes backend requests.
+- `src/App.css` contains the main UI styles.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Backend API
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The frontend currently uses this API base URL:
 
-### Code Splitting
+```js
+https://to-do-java-production.up.railway.app/tasks
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+The API methods are defined in `src/services/api.js`.
 
-### Analyzing the Bundle Size
+Expected endpoints:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+| Action | Method | Endpoint | Body |
+| --- | --- | --- | --- |
+| List tasks | `GET` | `/tasks` | none |
+| Create task | `POST` | `/tasks` | `{ "title": "Task title" }` |
+| Update task | `PUT` | `/tasks/:id` | `{ "title": "Updated title" }` |
+| Delete task | `DELETE` | `/tasks/:id` | none |
 
-### Making a Progressive Web App
+Expected task shape:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```json
+{
+  "id": 1,
+  "title": "Example task"
+}
+```
 
-### Advanced Configuration
+## Frontend Flow
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+1. `App.js` loads tasks when the component mounts.
+2. `getTasks()` fetches all tasks from the API.
+3. The task list is rendered with `TaskItem`.
+4. Creating a task calls `createTask(title)` and refreshes the list.
+5. Editing opens `TaskModal`, then calls `updateTask(id, title)` and refreshes the list.
+6. Deleting calls `deleteTask(id)` and refreshes the list.
 
-### Deployment
+## Development Notes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- Keep API-related code inside `src/services/api.js`.
+- Keep reusable UI pieces inside `src/components`.
+- When adding new task fields, update both the API service and the relevant components.
+- The current API URL is hardcoded. For multiple environments, move it to an environment variable such as `REACT_APP_API_URL`.
 
-### `npm run build` fails to minify
+Example:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```js
+const BASE_URL = process.env.REACT_APP_API_URL || "https://to-do-java-production.up.railway.app/tasks";
+```
+
+Then create a local `.env` file:
+
+```bash
+REACT_APP_API_URL=http://localhost:8080/tasks
+```
+
+## Build
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+The generated files will be placed in:
+
+```text
+build/
+```
+
+## Testing
+
+Run the test suite:
+
+```bash
+npm test
+```
+
+Create React App runs tests in watch mode by default. For CI usage, run:
+
+```bash
+npm test -- --watchAll=false
+```
